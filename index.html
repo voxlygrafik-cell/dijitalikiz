@@ -90,6 +90,7 @@
                     </select>
 
                     <label class="form-label fw-bold text-secondary text-uppercase" style="font-size:0.8rem;">Polifarmasi (Çoklu İlaç)</label>
+                    <p class="text-muted small mb-2">Ctrl/Cmd ile birden fazla seçebilirsiniz.</p>
                     <select id="ilacSecim" class="form-select mb-4" multiple size="8">
                         <option value="1">Warfarin (I: 0.35)</option>
                         <option value="2">Digoksin (I: 0.45)</option>
@@ -124,7 +125,7 @@
                 <div class="card-header bg-dark text-white border-0">💻 Sistem Monitörü</div>
                 <div class="card-body p-0">
                     <div id="logEkrani" class="log-panel">
-                        <span style="color:#64748b;">[SİSTEM]</span> AI Karar Destek Modülü aktif...<br>
+                        <span style="color:#64748b;">[SİSTEM]</span> AI Karar Destek Modülü aktif... Simülasyonu başlatın.<br>
                     </div>
                 </div>
             </div>
@@ -208,10 +209,25 @@
         const ctx = document.getElementById('simChart').getContext('2d');
         simChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: chartZaman, datasets: [{ label: 'İlaç Konsantrasyonu (mg/L)', data: chartKonsantrasyon, borderColor: '#00f2fe', backgroundColor: 'rgba(0, 242, 254, 0.1)', borderWidth: 3, pointRadius: 0, fill: true, tension: 0.3 }] },
+            data: { 
+                labels: chartZaman, 
+                datasets: [{ 
+                    label: 'İlaç Konsantrasyonu (mg/L)', 
+                    data: chartKonsantrasyon, 
+                    borderColor: '#00f2fe', 
+                    backgroundColor: 'rgba(0, 242, 254, 0.1)', 
+                    borderWidth: 3, 
+                    pointRadius: 0, 
+                    fill: true, 
+                    tension: 0.3 
+                }] 
+            },
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false, 
-                scales: { x: { title: { display: true, text: 'Zaman (Gün)' }, min: 0, max: 14 }, y: { title: { display: true, text: 'Konsantrasyon (mg/L)' }, min: 0, max: 450 } },
+                scales: { 
+                    x: { type: 'linear', title: { display: true, text: 'Zaman (Gün)' }, min: 0, max: 14 }, 
+                    y: { title: { display: true, text: 'Konsantrasyon (mg/L)' }, min: 0, max: 450 } 
+                },
                 plugins: {
                     annotation: {
                         annotations: {
@@ -248,8 +264,9 @@
         let dC = ((gunlukDoz / Vd) - (kEliminasyon * cAnlik)) * adimBuyuklugu;
         cAnlik += dC; mevcutGun += adimBuyuklugu;
 
-        chartZaman.push(mevcutGun.toFixed(2));
-        chartKonsantrasyon.push(cAnlik.toFixed(2));
+        // X ve Y değerlerini float (sayısal) formata çevirerek grafiğe itiyoruz
+        chartZaman.push(parseFloat(mevcutGun.toFixed(2)));
+        chartKonsantrasyon.push(parseFloat(cAnlik.toFixed(2)));
         
         if(Math.abs((mevcutGun % 0.5)) < 0.02) {
             logYaz(`GÜN ${mevcutGun.toFixed(1)} | KONSANTRASYON: ${cAnlik.toFixed(2)} mg/L`, "#10b981");
@@ -277,11 +294,10 @@
         const Af = parseFloat(document.getElementById("hastaTipi").value);
         let oneri = "";
         
-        // Basit ama etkili AI Kural Motoru
         setTimeout(() => {
             if (Af === 0.6 && kalanKapasite < 0.5) {
                 oneri = "KLİNİK AI ANALİZİ: Geriatrik hastada yüksek polifarmasi tespit edildi. Böbrek/Karaciğer atılım kapasitesi %" + (kalanKapasite*100).toFixed(0) + " seviyesine düşmüştür. Doz azaltımı yetersiz kalacaktır. Toksisiteyi önlemek için ilacın TAMAMEN KESİLMESİ (%94 güven skoru) önerilir.";
-                document.getElementById("btnKes").classList.add("pulse"); // Butonu vurgula
+                document.getElementById("btnKes").classList.add("pulse"); 
             } else if (Af === 0.6 && kalanKapasite >= 0.5) {
                 oneri = "KLİNİK AI ANALİZİ: Yaşa bağlı klirens düşüşü (Af=0.6) nedeniyle birikim saptanmıştır. İlaç etkileşim yükü düşük seviyededir. Dozun YARIYA DÜŞÜRÜLMESİ (%82 güven skoru) tedavi penceresine dönmek için yeterli olabilir.";
             } else if (Af === 1.0 && kalanKapasite < 0.5) {
@@ -290,14 +306,13 @@
                 oneri = "KLİNİK AI ANALİZİ: Atılım hızı eşik değerin altına inmiştir. Doz Yarıya Düşürülerek konsantrasyon izlenmelidir.";
             }
             
-            // Daktilo efekti
             aiTextDiv.innerHTML = "";
             let i = 0;
             function typeWriter() {
                 if (i < oneri.length) {
                     aiTextDiv.innerHTML += oneri.charAt(i);
                     i++;
-                    setTimeout(typeWriter, 20); // yazma hızı
+                    setTimeout(typeWriter, 20);
                 } else {
                     aiTextDiv.innerHTML += "<br><br><span class='badge bg-success'>Analiz Tamamlandı</span>";
                 }
