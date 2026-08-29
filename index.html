@@ -119,25 +119,25 @@
         
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); } }
 
-        /* Footer */
-        .footer { background-color: #ffffff; border-top: 1px solid #e2e8f0; padding: 3rem 0; margin-top: 4rem; }
-        .university-logo { max-height: 90px; object-fit: contain; margin-bottom: 1.5rem; transition: transform 0.3s; }
-        .university-logo:hover { transform: scale(1.05); }
-        .authors { background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 1.3rem; }
-    </style>
-</head>
-<body>
-
-<div class="hero-header text-center">
+<!-- Footer -->
+<footer class="footer text-center shadow-lg">
     <div class="container">
-        <h1 class="fw-bold mb-2">Geriatride Yapay Zeka Destekli Dijital İkiz</h1>
-        <p class="lead mb-0 opacity-75">Farmakokinetik İzlem, Matematiksel Modelleme ve AI Tabanlı Karar Destek Sistemi</p>
+        <img src="https://kapadokya.edu.tr/assets/images/logo.png" alt="Kapadokya Üniversitesi Logosu" class="university-logo" onerror="this.src='https://kapadokya.edu.tr/MediaUploader/Documents/kun-turkce-1_1.jpg'">
+        <h4 class="fw-bold mb-1" style="color: #2c3e50;">Kapadokya Üniversitesi</h4>
+        <p class="text-muted mb-3">Geriatride Dijital İkiz Teknolojileri</p>
+        <div class="mt-4">
+            <span class="text-secondary small text-uppercase d-block mb-1">Proje Tasarımı ve Matematiksel Modelleme</span>
+            <span class="authors">Nesrin SALUR & Sude ÖZCAN</span>
+            
+            <!-- Eklenen E-posta Bölümü -->
+            <div class="mt-2" style="font-size: 0.9rem;">
+                <a href="mailto:nesslrr6@gmail.com" class="text-decoration-none text-secondary me-3 hover-opacity">📧 nesslrr6@gmail.com</a>
+                <a href="mailto:sudeozcan907@gmail.com" class="text-decoration-none text-secondary hover-opacity">📧 sudeozcan907@gmail.com</a>
+            </div>
+            
+        </div>
     </div>
-</div>
-
-<div class="container">
-    <div class="row g-4">
-        
+</footer>
         <!-- Sol Panel (Ayarlar ve Matematiksel Monitör) -->
         <div class="col-lg-4">
             
