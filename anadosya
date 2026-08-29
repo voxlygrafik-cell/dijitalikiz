@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geriatrik Dijital İkiz Simülasyonu</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Chart.js ve Annotation Eklentisi -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/2.2.1/chartjs-plugin-annotation.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: #2c3e50;
+        }
+        
+        /* Üst Başlık (Hero) Alanı */
+        .hero-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-bottom: 4px solid #f39c12;
+        }
+
+        /* Kart Tasarımları */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+        .card-header {
+            background-color: #ffffff;
+            border-bottom: 2px solid #f0f2f5;
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+            color: #34495e;
+            padding: 1rem 1.25rem;
+        }
+
+        /* Sistem Log Ekranı */
+        .log-panel {
+            height: 250px;
+            overflow-y: auto;
+            background: #0f172a;
+            color: #10b981;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 15px;
+            border-radius: 0 0 12px 12px;
+            font-size: 0.85em;
+            line-height: 1.6;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        /* Grafik Alanı */
+        #chartContainer {
+            height: 420px;
+            width: 100%;
+            padding: 10px;
+        }
+
+        /* İlaç Seçim Kutusu */
+        select[multiple] {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        select[multiple] option {
+            padding: 8px 12px;
+            margin-bottom: 2px;
+            border-radius: 5px;
+        }
+        select[multiple] option:checked {
+            background-color: #e9ecef linear-gradient(0deg, #e9ecef 0%, #e9ecef 100%);
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        /* Footer (Alt Bilgi) Alanı */
+        .footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+        .university-logo {
+            max-height: 90px;
+            object-fit: contain;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+        .university-logo:hover {
+            transform: scale(1.05);
+        }
+        .authors {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Başlık Alanı -->
+<div class="hero-header text-center">
+    <div class="container">
+        <h1 class="fw-bold mb-2">Geriatride Dijital İkiz Teknolojileri</h1>
+        <p class="lead mb-0 opacity-75">Farmakokinetik İlaç Konsantrasyon Takibi ve Gerçek Zamanlı Karar Destek Sistemi</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        
+        <!-- Sol Panel: Ayarlar ve Parametreler -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>⚙️ Simülasyon Ayarları</span>
+                </div>
+                <div class="card-body">
+                    <label class="form-label fw-bold text-secondary text-uppercase" style="font-size:0.8rem;">Hasta Profili (Yaşlanma Faktörü - Af)</label>
+                    <select id="hastaTipi" class="form-select mb-4 shadow-sm">
+                        <option value="1.0">Genç / Sağlıklı Hasta (%100 Kapasite)</option>
+                        <option value="0.6" selected>Geriatrik / Yaşlı Hasta (%60 Kapasite)</option>
+                    </select>
+
+                    <label class="form-label fw-bold text-secondary text-uppercase d-flex justify-content-between" style="font-size:0.8rem;">
+                        <span>Kullanılan İlaçlar (Polifarmasi)</span>
+                        <span class="badge bg-primary rounded-pill">I Faktörü</span>
+                    </label>
+                    <p class="text-muted mb-2" style="font-size:0.75rem;">Birden fazla seçim yapmak için <b>Ctrl</b> (Windows) veya <b>Cmd</b> (Mac) tuşuna basılı tutun.</p>
+                    <select id="ilacSecim" class="form-select mb-4 shadow-sm" multiple size="8">
+                        <option value="1">Warfarin (Kan Sulandırıcı) — I: 0.35</option>
+                        <option value="2">Digoksin (Kalp Ritmi) — I: 0.45</option>
+                        <option value="3">Furosemid (İdrar Söktürücü) — I: 0.20</option>
+                        <option value="4">Metformin (Diyabet) — I: 0.15</option>
+                        <option value="5">Amiodaron (Ritim Düzenleyici) — I: 0.55</option>
+                        <option value="6">Simvastatin (Kolesterol) — I: 0.30</option>
+                        <option value="7">Omeprazol (Mide Koruyucu) — I: 0.25</option>
+                        <option value="8">Aspirin (Ağrı Kesici) — I: 0.20</option>
+                        <option value="9">Lisinopril (Tansiyon) — I: 0.15</option>
+                        <option value="10">Spironolakton (Diüretik) — I: 0.25</option>
+                    </select>
+
+                    <button id="btnBaslat" class="btn btn-primary w-100 py-3 fw-bold shadow" onclick="simulasyonuBaslat()">
+                        ▶ SİMÜLASYONU BAŞLAT
+                    </button>
+                </div>
+            </div>
+            
+            <div id="etkilesimUyari" class="alert alert-warning mt-3 d-none shadow-sm" role="alert" style="border-left: 5px solid #dc3545;"></div>
+        </div>
+
+        <!-- Sağ Panel: Grafik ve Loglar -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    📈 İlaç Konsantrasyon Grafiği
+                </div>
+                <div class="card-body p-0">
+                    <div id="chartContainer">
+                        <canvas id="simChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-dark text-white border-0" style="border-radius: 12px 12px 0 0 !important;">
+                    💻 Sistem Monitörü
+                </div>
+                <div class="card-body p-0">
+                    <div id="logEkrani" class="log-panel">
+                        <span style="color:#64748b;">[SİSTEM]</span> Modüller yüklendi. Simülasyon başlatılmaya hazır...<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<!-- Hekim Müdahale Modalı (Uyarı Penceresi) -->
+<div class="modal fade" id="mudahaleModal" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold">⚠️ KRİTİK UYARI: TOKSİK SINIRA YAKLAŞILDI</h5>
+      </div>
+      <div class="modal-body bg-light">
+        <p class="fs-5 text-center mb-4 mt-2">Hasta toksik sınırın <b>%85'ine</b> ulaştı. İlaç hızla birikiyor!</p>
+        <p class="text-muted text-center small mb-3">Lütfen dijital ikiz üzerinden hekim kararınızı sisteme girin:</p>
+        <div class="d-grid gap-3">
+            <button type="button" class="btn btn-outline-danger fw-bold py-2" onclick="hekimKarari('D')">📉 Dozu Yarıya Düşür</button>
+            <button type="button" class="btn btn-danger fw-bold py-3 shadow" onclick="hekimKarari('K')">🛑 İkinci İlacı Tamamen Kes (Önerilen)</button>
+            <button type="button" class="btn btn-secondary fw-bold py-2 mt-2" onclick="hekimKarari('B')">⏳ Hiçbir Şey Yapma (İzle)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer Alanı (Logo ve İsimler) -->
+<footer class="footer text-center shadow-lg">
+    <div class="container">
+        <!-- Logo resmi: Hata verirse varsayılan bir görsel yüklenmesi için onerror eklendi -->
+        <img src="https://kapadokya.edu.tr/assets/images/logo.png" 
+             alt="Kapadokya Üniversitesi Logosu" 
+             class="university-logo" 
+             onerror="this.src='https://upload.wikimedia.org/wikipedia/tr/b/bc/Kapadokya_%C3%9Cniversitesi_logo.png'">
+        
+        <h4 class="fw-bold mb-1" style="color: #2c3e50;">Kapadokya Üniversitesi</h4>
+        <p class="text-muted mb-3" style="letter-spacing: 1px; font-size: 0.9rem;">Geriatride Dijital İkiz Teknolojileri</p>
+        
+        <div class="mt-4">
+            <span class="text-secondary small text-uppercase d-block mb-1">Proje Tasarımı ve Matematiksel Modelleme</span>
+            <span class="authors">Nesrin SALUR & Sude ÖZCAN</span>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // --- VERİTABANI ---
+    const ILAC_KATALOGU = {
+        1: {isim: "Warfarin", I: 0.35}, 2: {isim: "Digoksin", I: 0.45},
+        3: {isim: "Furosemid", I: 0.20}, 4: {isim: "Metformin", I: 0.15},
+        5: {isim: "Amiodaron", I: 0.55}, 6: {isim: "Simvastatin", I: 0.30},
+        7: {isim: "Omeprazol", I: 0.25}, 8: {isim: "Aspirin", I: 0.20},
+        9: {isim: "Lisinopril", I: 0.15}, 10: {isim: "Spironolakton", I: 0.25}
+    };
+
+    const RISKLI_ETKILESIMLER = [
+        { cift: [1,8], risk: "KRİTİK", msg: "Warfarin + Aspirin: Ciddi kanama riski!" },
+        { cift: [1,5], risk: "KRİTİK", msg: "Warfarin + Amiodaron: Kanama riski artar!" },
+        { cift: [1,7], risk: "ORTA", msg: "Warfarin + Omeprazol: Etki güçlenebilir." },
+        { cift: [2,5], risk: "KRİTİK", msg: "Digoksin + Amiodaron: Ciddi toksisite riski!" },
+        { cift: [2,3], risk: "ORTA", msg: "Digoksin + Furosemid: Potasyum düşüşü." },
+        { cift: [5,6], risk: "KRİTİK", msg: "Amiodaron + Simvastatin: Kas hasarı riski!" },
+        { cift: [9,10], risk: "KRİTİK", msg: "Lisinopril + Spironolakton: Hiperkalemi riski!" },
+        { cift: [3,9], risk: "ORTA", msg: "Furosemid + Lisinopril: Aşırı tansiyon düşüşü." }
+    ];
+
+    // --- SİMÜLASYON DEĞİŞKENLERİ ---
+    let simChart;
+    let simInterval;
+    let mevcutGun = 0;
+    let cAnlik = 0;
+    let gunlukDoz = 8200.0;
+    let CL_gunluk = 120.0;
+    let Vd = 40.0;
+    let toksikSinir = 350.0;
+    let mudahaleEdildi = false;
+    let kEliminasyon = 0;
+    
+    // Grafik için veriler
+    let chartZaman = [];
+    let chartKonsantrasyon = [];
+
+    // UI Elementleri
+    const logEkrani = document.getElementById("logEkrani");
+    const mudahaleModal = new bootstrap.Modal(document.getElementById('mudahaleModal'));
+
+    function formatTime() {
+        const now = new Date();
+        return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    }
+
+    function logYaz(mesaj, renk="#10b981") {
+        logEkrani.innerHTML += `<span style="color:#64748b;">[${formatTime()}]</span> <span style="color:${renk}">${mesaj}</span><br>`;
+        logEkrani.scrollTop = logEkrani.scrollHeight;
+    }
+
+    function etkilesimKontrolEt(secilenler) {
+        let uyarilar = [];
+        for(let i=0; i<secilenler.length; i++) {
+            for(let j=i+1; j<secilenler.length; j++) {
+                let id1 = parseInt(secilenler[i]);
+                let id2 = parseInt(secilenler[j]);
+                RISKLI_ETKILESIMLER.forEach(etk => {
+                    if(etk.cift.includes(id1) && etk.cift.includes(id2)) {
+                        uyarilar.push(`[${etk.risk}] ${etk.msg}`);
+                    }
+                });
+            }
+        }
+        return uyarilar;
+    }
+
+    function grafikiHazirla() {
+        if(simChart) simChart.destroy();
+        const ctx = document.getElementById('simChart').getContext('2d');
+        
+        simChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartZaman,
+                datasets: [{
+                    label: 'İlaç Konsantrasyonu (mg/L)',
+                    data: chartKonsantrasyon,
+                    borderColor: '#2a5298',
+                    backgroundColor: 'rgba(42, 82, 152, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, 
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'Zaman (Gün)', font: {weight: 'bold'} }, 
+                        min: 0, max: 14,
+                        grid: { color: '#f0f2f5' }
+                    },
+                    y: { 
+                        title: { display: true, text: 'Konsantrasyon (mg/L)', font: {weight: 'bold'} }, 
+                        min: 0, max: 450,
+                        grid: { color: '#f0f2f5' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    annotation: {
+                        annotations: {
+                            guvenli: { type: 'box', yMin: 0, yMax: toksikSinir * 0.70, backgroundColor: 'rgba(46, 204, 113, 0.1)', borderWidth: 0 },
+                            riskli: { type: 'box', yMin: toksikSinir * 0.70, yMax: toksikSinir, backgroundColor: 'rgba(243, 156, 18, 0.1)', borderWidth: 0 },
+                            kritik: { type: 'box', yMin: toksikSinir, yMax: 450, backgroundColor: 'rgba(231, 76, 60, 0.1)', borderWidth: 0 },
+                            toksikCizgi: { type: 'line', yMin: toksikSinir, yMax: toksikSinir, borderColor: '#e74c3c', borderWidth: 2, borderDash: [5, 5], label: {display: true, content: 'Toksik Sınır', position: 'end', backgroundColor: '#e74c3c'} }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function simulasyonuBaslat() {
+        document.getElementById("btnBaslat").disabled = true;
+        document.getElementById("btnBaslat").innerHTML = "SİMÜLASYON ÇALIŞIYOR...";
+        logEkrani.innerHTML = "";
+        clearInterval(simInterval);
+        
+        mevcutGun = 0;
+        cAnlik = 0;
+        gunlukDoz = 8200.0;
+        mudahaleEdildi = false;
+        chartZaman = [];
+        chartKonsantrasyon = [];
+        
+        const Af = parseFloat(document.getElementById("hastaTipi").value);
+        const secilenIlaclar = Array.from(document.getElementById("ilacSecim").selectedOptions).map(opt => opt.value);
+        
+        const divUyari = document.getElementById("etkilesimUyari");
+        let uyarilar = etkilesimKontrolEt(secilenIlaclar);
+        if(uyarilar.length > 0) {
+            divUyari.className = "alert alert-danger mt-3 shadow-sm";
+            divUyari.innerHTML = "<strong>⚠️ Etkileşim Tespit Edildi:</strong><br>" + uyarilar.join("<br>");
+        } else {
+            divUyari.className = "alert alert-warning d-none";
+        }
+
+        let kalanKapasite = 1.0;
+        secilenIlaclar.forEach(id => {
+            kalanKapasite *= (1 - ILAC_KATALOGU[id].I);
+        });
+        
+        kEliminasyon = (CL_gunluk * Af * kalanKapasite) / Vd;
+
+        logYaz(`Simülasyon Başlatıldı. Parametreler:`, "#38bdf8");
+        logYaz(`► Yaşlanma Faktörü (Af): ${Af}`, "#e2e8f0");
+        logYaz(`► Kalan Klirens Kapasitesi: %${(kalanKapasite*100).toFixed(1)}`, "#e2e8f0");
+        logYaz(`► Birleşik Etkileşim Yükü (I): ${(1 - kalanKapasite).toFixed(3)}`, "#e2e8f0");
+        logYaz(`Veri akışı bekleniyor...`, "#38bdf8");
+        logYaz(`------------------------------------------------`, "#64748b");
+        
+        grafikiHazirla();
+        simInterval = setInterval(similasyonAdimi, 35); // Daha akıcı grafik için süre hafif düşürüldü
+    }
+
+    function similasyonAdimi() {
+        const adimBuyuklugu = 0.05; 
+        
+        let dC = ((gunlukDoz / Vd) - (kEliminasyon * cAnlik)) * adimBuyuklugu;
+        cAnlik += dC;
+        mevcutGun += adimBuyuklugu;
+
+        chartZaman.push(mevcutGun.toFixed(2));
+        chartKonsantrasyon.push(cAnlik.toFixed(2));
+        
+        if(Math.abs((mevcutGun % 0.5)) < 0.02) {
+            let durumRenk = "#10b981"; // Yeşil
+            let durumMetin = "GÜVENLİ BÖLGE";
+            if(cAnlik >= toksikSinir) { durumRenk = "#ef4444"; durumMetin = "KRİTİK TOKSİSİTE AŞILDI"; }
+            else if(cAnlik >= toksikSinir * 0.70) { durumRenk = "#f59e0b"; durumMetin = "RİSKLİ BÖLGE (BİRİKİM ARTIYOR)"; }
+            
+            logYaz(`GÜN ${mevcutGun.toFixed(1).padStart(4, '0')} | KONSANTRASYON: ${cAnlik.toFixed(2).padStart(6, '0')} mg/L | DURUM: ${durumMetin}`, durumRenk);
+            simChart.update();
+        }
+
+        if (cAnlik >= (toksikSinir * 0.85) && !mudahaleEdildi) {
+            clearInterval(simInterval); 
+            logYaz(`!!! SİSTEM UYARISI: TOKSİK SINIRA YAKLAŞILDI !!!`, "#ef4444");
+            logYaz(`Hekim kararı bekleniyor...`, "#f59e0b");
+            mudahaleModal.show(); 
+        }
+
+        if (mevcutGun >= 14) {
+            clearInterval(simInterval);
+            simChart.update();
+            logYaz(`------------------------------------------------`, "#64748b");
+            logYaz("✅ SİMÜLASYON 14 GÜNLÜK PERİYOT İÇİN TAMAMLANDI.", "#10b981");
+            
+            const btn = document.getElementById("btnBaslat");
+            btn.disabled = false;
+            btn.innerHTML = "▶ YENİDEN BAŞLAT";
+        }
+    }
+
+    function hekimKarari(karar) {
+        mudahaleModal.hide();
+        mudahaleEdildi = true;
+        
+        simChart.options.plugins.annotation.annotations.mudahaleCizgisi = {
+            type: 'line', xMin: mevcutGun, xMax: mevcutGun,
+            borderColor: '#8e44ad', borderWidth: 2, borderDash: [3, 3],
+            label: { display: true, content: 'Hekim Müdahalesi', position: 'center', backgroundColor: '#8e44ad', font: {weight: 'bold'} }
+        };
+
+        logYaz(`>>> HEKİM KARARI SİSTEME GİRİLDİ <<<`, "#a855f7");
+        if (karar === 'K') {
+            gunlukDoz = 0.0;
+            logYaz(`[İŞLEM] İlaç tamamen kesildi. Kanda temizlenme başlıyor.`, "#a855f7");
+        } else if (karar === 'D') {
+            gunlukDoz = gunlukDoz / 2;
+            logYaz(`[İŞLEM] Doz yarıya düşürüldü.`, "#a855f7");
+        } else {
+            logYaz(`[İŞLEM] Hiçbir müdahale yapılmadı, risk devam ediyor.`, "#ef4444");
+        }
+        logYaz(`Simülasyon devam ediyor...`, "#38bdf8");
+        simInterval = setInterval(similasyonAdimi, 35);
+    }
+</script>
+
+</body>
+</html>
