@@ -328,7 +328,7 @@
     let simChart, simInterval, mevcutGun = 0, cAnlik = 0, gunlukDoz = 8200.0, CL_gunluk = 120.0, Vd = 40.0, toksikSinir = 350.0, mudahaleEdildi = false, kEliminasyon = 0, kalanKapasite = 1.0;
     let globalAf = 1.0;
     let chartData = []; 
-    let sonrakiLogGunu = 0.5; // Gün atlama sorununu çözen hassasiyet sayacı
+    let sonrakiLogGunu = 0.5;
     
     const logEkrani = document.getElementById("logEkrani");
     const mudahaleModal = new bootstrap.Modal(document.getElementById('mudahaleModal'));
@@ -394,7 +394,7 @@
         
         mevcutGun = 0; cAnlik = 0; gunlukDoz = 8200.0; mudahaleEdildi = false; 
         chartData = []; 
-        sonrakiLogGunu = 0.5; // Her simülasyon başlangıcında sayaç sıfırlanır
+        sonrakiLogGunu = 0.5;
         
         globalAf = parseFloat(document.getElementById("hastaTipi").value);
         const secilenIlaclar = Array.from(document.getElementById("ilacSecim").selectedOptions).map(opt => opt.value);
@@ -417,6 +417,7 @@
         cAnlik += dC; 
         mevcutGun += adimBuyuklugu;
 
+        // Grafiğin her adımda düzgün çizilmesi için veri ekleniyor
         chartData.push({ x: parseFloat(mevcutGun.toFixed(2)), y: parseFloat(cAnlik.toFixed(2)) });
         
         m_t.innerText = mevcutGun.toFixed(2);
@@ -430,11 +431,11 @@
         m_doz.innerText = gunlukDoz.toFixed(0);
         m_C.innerText = cAnlik.toFixed(2);
 
-        // Gün atlama sorununu çözen hassas sayaç kontrolü
+        // Her yarım günde bir log basma ve grafiği güncelleme
         if (mevcutGun >= sonrakiLogGunu) {
             logYaz(`GÜN ${sonrakiLogGunu.toFixed(1)} | KONSANTRASYON: ${cAnlik.toFixed(2)} mg/L`, "#10b981");
             simChart.update();
-            sonrakiLogGunu += 0.5; // Bir sonraki yarım gün eşiğine ilerle
+            sonrakiLogGunu += 0.5;
         }
 
         if (cAnlik >= (toksikSinir * 0.85) && !mudahaleEdildi) {
@@ -445,7 +446,8 @@
         }
 
         if (mevcutGun >= 14) {
-            clearInterval(simInterval); simChart.update();
+            clearInterval(simInterval); 
+            simChart.update();
             logYaz("✅ SİMÜLASYON TAMAMLANDI.", "#10b981");
             document.getElementById("btnBaslat").disabled = false;
         }
