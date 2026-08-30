@@ -183,12 +183,18 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="math-panel">
-                        <div class="math-formula">dC/dt = (Doz/Vd) - (k · C)</div>
+                        <!-- === DÜZELTME: Doğru diferansiyel denklem — doz (giren) ve eliminasyon (çıkan) terimleri birlikte === -->
+                        <div class="math-formula">dC/dt = R/V<sub>d</sub> − [(CL · A<sub>f</sub> · (1−I)) / V<sub>d</sub>] · C</div>
                         <div class="math-var"><span>Zaman (t):</span> <span class="math-val"><span id="math_t">0.00</span> gün</span></div>
                         <div class="math-var"><span>Birikim Hızı (dC/dt):</span> <span class="math-val"><span id="math_dCdt">0.00</span> mg/L/g</span></div>
-                        <div class="math-var"><span>Elim. Sabiti (k):</span> <span class="math-val"><span id="math_k">0.00</span></span></div>
-                        <div class="math-var"><span>Aktif Kapasite:</span> <span class="math-val"><span id="math_cap">%0</span></span></div>
-                        <div class="math-var"><span>Günlük Doz:</span> <span class="math-val"><span id="math_doz">0</span> mg</span></div>
+                        <div class="math-var mt-2 pt-2 border-top border-secondary" style="color:#94a3b8; font-size:0.75rem;">GİRİŞ TERİMİ (musluk)</div>
+                        <div class="math-var"><span>R (Doz Hızı):</span> <span class="math-val"><span id="math_R">0</span> mg/gün</span></div>
+                        <div class="math-var"><span>V<sub>d</sub> (Dağılım Hacmi):</span> <span class="math-val"><span id="math_Vd">0</span> L</span></div>
+                        <div class="math-var mt-2 pt-2 border-top border-secondary" style="color:#94a3b8; font-size:0.75rem;">ÇIKIŞ TERİMİ (gider)</div>
+                        <div class="math-var"><span>CL (Temel Klirens):</span> <span class="math-val"><span id="math_CL">0</span> L/gün</span></div>
+                        <div class="math-var"><span>A<sub>f</sub> (Yaş Faktörü):</span> <span class="math-val"><span id="math_Af">0.00</span></span></div>
+                        <div class="math-var"><span>I (Toplam Etkileşim):</span> <span class="math-val"><span id="math_I">0.00</span></span></div>
+                        <div class="math-var"><span>k = CL·A<sub>f</sub>·(1−I)/V<sub>d</sub>:</span> <span class="math-val"><span id="math_k">0.00</span></span></div>
                         <div class="math-var mt-2 pt-2 border-top border-secondary">
                             <span style="color:#2ecc71;">Anlık C(t):</span>
                             <span class="math-val" style="color:#2ecc71; font-size:1.1rem;"><span id="math_C">0.00</span> mg/L</span>
@@ -345,8 +351,11 @@
     const m_t = document.getElementById("math_t");
     const m_dCdt = document.getElementById("math_dCdt");
     const m_k = document.getElementById("math_k");
-    const m_cap = document.getElementById("math_cap");
-    const m_doz = document.getElementById("math_doz");
+    const m_R = document.getElementById("math_R");
+    const m_Vd = document.getElementById("math_Vd");
+    const m_CL = document.getElementById("math_CL");
+    const m_Af = document.getElementById("math_Af");
+    const m_I = document.getElementById("math_I");
     const m_C = document.getElementById("math_C");
 
     function formatTime() {
@@ -409,19 +418,28 @@
 
         kalanKapasite = 1.0;
         secilenIlaclar.forEach(id => { kalanKapasite *= (1 - ILAC_KATALOGU[id].I); });
-        kEliminasyon = (CL_gunluk * globalAf * kalanKapasite) / Vd;
+        const toplamI = 1 - kalanKapasite; // === EKLENDİ: formüldeki "I" — toplam etkileşim yükü ===
+        kEliminasyon = (CL_gunluk * globalAf * (1 - toplamI)) / Vd; // k = CL·Af·(1-I)/Vd
 
         // === EKLENDİ: seçilen ilaçları isim + I değeriyle sakla, en yüksek etkileşimden en düşüğe sırala ===
         secilenIlacListesi = secilenIlaclar
             .map(id => ({ isim: ILAC_KATALOGU[id].isim, I: ILAC_KATALOGU[id].I }))
             .sort((a, b) => b.I - a.I);
 
-        logYaz(`[AI] Hasta verileri işleniyor... Af: ${globalAf}, Toplam I: ${(1-kalanKapasite).toFixed(2)}`, "#0ea5e9");
+        // === EKLENDİ: formülün sabit/başlangıç bileşenlerini panelde bir kez yaz (R, Vd, CL, Af, I) ===
+        m_R.innerText = gunlukDoz.toFixed(0);
+        m_Vd.innerText = Vd.toFixed(0);
+        m_CL.innerText = CL_gunluk.toFixed(0);
+        m_Af.innerText = globalAf.toFixed(2);
+        m_I.innerText = toplamI.toFixed(2);
+
+        logYaz(`[AI] Hasta verileri işleniyor... Af: ${globalAf}, Toplam I: ${toplamI.toFixed(2)}`, "#0ea5e9");
         grafikiHazirla();
         simInterval = setInterval(similasyonAdimi, 40);
     }
 
     function similasyonAdimi() {
+        // === DOĞRU MODEL: dC/dt = R/Vd - [(CL·Af·(1-I))/Vd]·C  →  giriş (R/Vd) - çıkış (k·C) ===
         let dC_dt_anlik = ((gunlukDoz / Vd) - (kEliminasyon * cAnlik));
         let dC = dC_dt_anlik * ADIM_BUYUKLUGU;
 
@@ -438,8 +456,6 @@
         else { m_dCdt.style.color = "#00f2fe"; }
 
         m_k.innerText = kEliminasyon.toFixed(2);
-        m_cap.innerText = "%" + (globalAf * kalanKapasite * 100).toFixed(0);
-        m_doz.innerText = gunlukDoz.toFixed(0);
         m_C.innerText = cAnlik.toFixed(2);
 
         // === DÜZELTME: mevcutGun % 0.5 yerine tam sayı sayaç kontrolü ===
@@ -539,7 +555,7 @@
 
         logYaz(`[AI-KAYIT] Hekim müdahalesi sisteme işlendi. Diferansiyel motor güncellendi.`, "#a855f7");
 
-        m_doz.innerText = gunlukDoz.toFixed(0);
+        m_R.innerText = gunlukDoz.toFixed(0); // === DÜZELTME: eski m_doz yerine yeni R alanı güncelleniyor ===
 
         simInterval = setInterval(similasyonAdimi, 40);
     }
