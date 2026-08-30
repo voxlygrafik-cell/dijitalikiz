@@ -328,6 +328,8 @@
     let simChart, simInterval, mevcutGun = 0, cAnlik = 0, gunlukDoz = 8200.0, CL_gunluk = 120.0, Vd = 40.0, toksikSinir = 350.0, mudahaleEdildi = false, kEliminasyon = 0, kalanKapasite = 1.0;
     let globalAf = 1.0;
     let chartData = [];
+    // === EKLENDİ: Seçilen ilaçları saklayıp AI mesajında "hangi ilaç sorumlu" bilgisini vermek için ===
+    let secilenIlacListesi = []; // [{isim, I}, ...] - I'ye göre büyükten küçüğe sıralı
 
     // === DÜZELTME: Kayan nokta (floating point) hatasından etkilenmeyen tam sayı adım sayacı ===
     // mevcutGun += 0.05 işlemi binary temsil hatası biriktirdiği için "mevcutGun % 0.5" güvenilmezdi.
@@ -409,6 +411,11 @@
         secilenIlaclar.forEach(id => { kalanKapasite *= (1 - ILAC_KATALOGU[id].I); });
         kEliminasyon = (CL_gunluk * globalAf * kalanKapasite) / Vd;
 
+        // === EKLENDİ: seçilen ilaçları isim + I değeriyle sakla, en yüksek etkileşimden en düşüğe sırala ===
+        secilenIlacListesi = secilenIlaclar
+            .map(id => ({ isim: ILAC_KATALOGU[id].isim, I: ILAC_KATALOGU[id].I }))
+            .sort((a, b) => b.I - a.I);
+
         logYaz(`[AI] Hasta verileri işleniyor... Af: ${globalAf}, Toplam I: ${(1-kalanKapasite).toFixed(2)}`, "#0ea5e9");
         grafikiHazirla();
         simInterval = setInterval(similasyonAdimi, 40);
@@ -458,22 +465,50 @@
         }
     }
 
+    // === EKLENDİ: Seçilen ilaçlar arasından "asıl sorumlu" olanları belirleyen yardımcı fonksiyon ===
+    // Mantık: I değeri en yüksek ilaç(lar) ana suçlu kabul edilir. I >= 0.30 olan diğer ilaçlar da
+    // (klinik olarak "belirgin etkileşim" sayılabilecek) ayrıca listelenir.
+    function sorumluIlaclariBelirle() {
+        if (secilenIlacListesi.length === 0) {
+            return { anaSuclu: "belirli bir ilaç yok (etkileşim doğal fizyolojik düşüşten kaynaklanıyor)", digerRiskliler: [], hepsiMetin: "seçili ilaç yok" };
+        }
+        const enYuksekI = secilenIlacListesi[0].I;
+        const anaSucluIlaclar = secilenIlacListesi.filter(ilac => ilac.I === enYuksekI);
+        const digerRiskliler = secilenIlacListesi.filter(ilac => ilac.I < enYuksekI && ilac.I >= 0.30);
+
+        const anaSuclu = anaSucluIlaclar.map(ilac => `${ilac.isim} (I: ${ilac.I.toFixed(2)})`).join(" ve ");
+        const hepsiMetin = secilenIlacListesi.map(ilac => `${ilac.isim} (I: ${ilac.I.toFixed(2)})`).join(", ");
+
+        return { anaSuclu, digerRiskliler, hepsiMetin };
+    }
+
     function yapayZekaAnaliziUret() {
         const aiTextDiv = document.getElementById("aiAnalysisText");
         aiTextDiv.innerHTML = "Hasta verileri ve matematiksel model işleniyor<span class='ai-thinking'></span>";
 
         let oneri = "";
+        const sorumlular = sorumluIlaclariBelirle(); // === EKLENDİ ===
 
         setTimeout(() => {
             if (globalAf === 0.6 && kalanKapasite < 0.5) {
-                oneri = "Merhaba! Geriatrik hastamızda yüksek polifarmasi tespit ettim. Böbrek/Karaciğer atılım kapasitesi maalesef %" + (kalanKapasite*100).toFixed(0) + " seviyesine düştü. Sadece doz azaltmak yetersiz kalacaktır. Toksisiteyi önlemek için ilacın TAMAMEN KESİLMESİNİ (%94 güven skoru) öneriyorum.";
+                oneri = "Merhaba! Geriatrik hastamızda yüksek polifarmasi tespit ettim. Böbrek/Karaciğer atılım kapasitesi maalesef %" + (kalanKapasite*100).toFixed(0) + " seviyesine düştü. "
+                    + "Analizime göre bu düşüşün asıl kaynağı " + sorumlular.anaSuclu
+                    + (sorumlular.digerRiskliler.length > 0
+                        ? ", buna ek olarak " + sorumlular.digerRiskliler.map(i => `${i.isim} (I: ${i.I.toFixed(2)})`).join(", ") + " de birikime belirgin katkı sağlıyor."
+                        : ".")
+                    + " Sadece doz azaltmak yetersiz kalacaktır. Toksisiteyi önlemek için ilacın TAMAMEN KESİLMESİNİ (%94 güven skoru) öneriyorum.";
                 document.getElementById("btnKes").classList.add("pulse");
             } else if (globalAf === 0.6 && kalanKapasite >= 0.5) {
-                oneri = "Merhaba! Yaşa bağlı klirens düşüşü nedeniyle hastamızda ilaç birikimi saptadım. Ancak ilaç etkileşim yükü hala yönetilebilir seviyede. Dozun YARIYA DÜŞÜRÜLMESİ (%82 güven skoru) tedavi penceresine dönmemiz için yeterli olacaktır.";
+                oneri = "Merhaba! Yaşa bağlı klirens düşüşü nedeniyle hastamızda ilaç birikimi saptadım. Seçili ilaçlar arasında en yüksek etkileşim yüküne sahip olan " + sorumlular.anaSuclu
+                    + (sorumlular.digerRiskliler.length > 0
+                        ? ", ayrıca " + sorumlular.digerRiskliler.map(i => `${i.isim} (I: ${i.I.toFixed(2)})`).join(", ") + " da dikkat edilmesi gereken diğer etkenler."
+                        : ".")
+                    + " Ancak toplam etkileşim yükü hala yönetilebilir seviyede. Dozun YARIYA DÜŞÜRÜLMESİ (%82 güven skoru) tedavi penceresine dönmemiz için yeterli olacaktır.";
             } else if (globalAf === 1.0 && kalanKapasite < 0.5) {
-                oneri = "Merhaba! Hastamızın genç ve fizyolojik kapasitesinin tam olmasına rağmen, seçtiğiniz ilaç kombinasyonları (polifarmasi) eliminasyonu büyük ölçüde bloke etti. Dozu yarıya düşürerek gözlem yapmanızı öneririm.";
+                oneri = "Merhaba! Hastamızın genç ve fizyolojik kapasitesinin tam olmasına rağmen, seçtiğiniz ilaç kombinasyonu (" + sorumlular.hepsiMetin + ") eliminasyonu büyük ölçüde bloke etti. "
+                    + "Bunlar arasında en yüksek etkileşim değerine sahip olan " + sorumlular.anaSuclu + ", birikimin başlıca sebebi gibi görünüyor. Dozu yarıya düşürerek gözlem yapmanızı öneririm.";
             } else {
-                oneri = "Merhaba! Atılım hızı belirlediğimiz güvenli eşik değerin altına indi. Toksik etkiyi önlemek için dozu yarıya düşürerek konsantrasyonu izlemeye devam etmenizi tavsiye ederim.";
+                oneri = "Merhaba! Atılım hızı belirlediğimiz güvenli eşik değerin altına indi. Seçili ilaçlar arasında (" + sorumlular.hepsiMetin + ") en dikkat çekici olan " + sorumlular.anaSuclu + ". Toksik etkiyi önlemek için dozu yarıya düşürerek konsantrasyonu izlemeye devam etmenizi tavsiye ederim.";
             }
 
             aiTextDiv.innerHTML = "";
