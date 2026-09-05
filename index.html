@@ -543,8 +543,8 @@
             btn.classList.remove("btn-warning");
             btn.classList.add("btn-outline-primary");
             btn.innerHTML = seciliIlacIdSeti.size > 0
-                ? `💊 İlaç Seç <span class="float-end">✅ ${seciliIlacIdSeti.size} ilaç seçildi</span>`
-                : `💊 İlaç Seç <span class="float-end">✅ İlaç kullanılmıyor</span>`;
+                ? `💊 İlaç Seç <span class="float-end"> ${seciliIlacIdSeti.size} ilaç seçildi</span>`
+                : `💊 İlaç Seç <span class="float-end"> İlaç kullanılmıyor</span>`;
         } else {
             btn.classList.add("btn-warning");
             btn.classList.remove("btn-outline-primary");
@@ -560,12 +560,12 @@
         onaylandiMi = true;
 
         if (seciliIlacIdSeti.size === 0) {
-            ozetKutusu.innerHTML = "✅ Onaylandı: Hiç ilaç seçilmedi (yalnız fizyolojik eliminasyon).";
+            ozetKutusu.innerHTML = "Onaylandı: Hiç ilaç seçilmedi (yalnız fizyolojik eliminasyon).";
         } else {
             const secilenIsimler = Array.from(seciliIlacIdSeti)
                 .map(id => `${ILAC_KATALOGU[id].isim} (I: ${ILAC_KATALOGU[id].I.toFixed(2)})`)
                 .join(", ");
-            ozetKutusu.innerHTML = `✅ Onaylandı (${seciliIlacIdSeti.size} ilaç): ${secilenIsimler}`;
+            ozetKutusu.innerHTML = `Onaylandı (${seciliIlacIdSeti.size} ilaç): ${secilenIsimler}`;
         }
         ozetKutusu.classList.remove("d-none");
         btnBaslat.disabled = false;
