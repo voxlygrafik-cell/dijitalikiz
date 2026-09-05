@@ -128,6 +128,61 @@
         .university-logo { max-height: 90px; object-fit: contain; margin-bottom: 1.5rem; transition: transform 0.3s; }
         .university-logo:hover { transform: scale(1.05); }
         .authors { background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 1.3rem; display: block;}
+
+        /* === EKLENDİ: İlaç seçim butonları === */
+        .ilac-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        .ilac-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 2px solid #dfe6e9;
+            background: #fff;
+            color: #2c3e50;
+            text-align: left;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .ilac-btn:hover { border-color: #0d6efd; transform: translateY(-1px); }
+        .ilac-btn .ilac-isim { font-weight: 700; font-size: 0.9rem; }
+        .ilac-btn .ilac-i { font-size: 0.75rem; color: #7f8c8d; font-family: 'JetBrains Mono', monospace; }
+        .ilac-btn.secili {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(13,110,253,0.35);
+        }
+        .ilac-btn.secili .ilac-i { color: #d6e4ff; }
+        .ilac-btn .ilac-check {
+            margin-left: auto; font-size: 0.9rem; opacity: 0; transition: opacity 0.15s ease;
+        }
+        .ilac-btn.secili .ilac-check { opacity: 1; }
+        .onay-ozet {
+            background: #eef6ff;
+            border: 1px dashed #0d6efd;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #084298;
+        }
+
+        /* === EKLENDİ: Sonuç ekranı === */
+        .sonuc-durum-badge {
+            display: inline-block; padding: 6px 18px; border-radius: 30px;
+            font-weight: 800; font-size: 1rem; letter-spacing: 0.5px;
+        }
+        .sonuc-stat {
+            background: #f8f9fb; border-radius: 10px; padding: 12px 16px;
+            text-align: center; height: 100%;
+        }
+        .sonuc-stat .label { font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; font-weight: 700; }
+        .sonuc-stat .value { font-size: 1.4rem; font-weight: 800; color: #2c3e50; }
     </style>
 </head>
 <body>
@@ -155,21 +210,14 @@
                     </select>
 
                     <label class="form-label fw-bold text-secondary text-uppercase" style="font-size:0.8rem;">Polifarmasi (Çoklu İlaç)</label>
-                    <p class="text-muted small mb-2">Ctrl/Cmd ile birden fazla seçebilirsiniz.</p>
-                    <select id="ilacSecim" class="form-select mb-4" multiple size="6">
-                        <option value="1">Warfarin (I: 0.35)</option>
-                        <option value="2">Digoksin (I: 0.45)</option>
-                        <option value="3">Furosemid (I: 0.20)</option>
-                        <option value="4">Metformin (I: 0.15)</option>
-                        <option value="5">Amiodaron (I: 0.55)</option>
-                        <option value="6">Simvastatin (I: 0.30)</option>
-                        <option value="7">Omeprazol (I: 0.25)</option>
-                        <option value="8">Aspirin (I: 0.20)</option>
-                        <option value="9">Lisinopril (I: 0.15)</option>
-                        <option value="10">Spironolakton (I: 0.25)</option>
-                    </select>
 
-                    <button id="btnBaslat" class="btn btn-dark w-100 py-3 fw-bold shadow" onclick="simulasyonuBaslat()">
+                    <button id="btnIlacSecAc" type="button" class="btn btn-warning w-100 fw-bold mb-2 text-start px-3 py-3" data-bs-toggle="modal" data-bs-target="#ilacSecModal">
+                        💊 İlaç Seç <span class="float-end">⚠️ Zorunlu adım — devam etmek için tıklayın</span>
+                    </button>
+
+                    <div id="onayOzetKutusu" class="onay-ozet mb-4 d-none"></div>
+
+                    <button id="btnBaslat" class="btn btn-dark w-100 py-3 fw-bold shadow" onclick="simulasyonuBaslat()" disabled>
                         ▶ SİMÜLASYONU BAŞLAT
                     </button>
                 </div>
@@ -306,6 +354,90 @@
   </div>
 </div>
 
+<!-- === EKLENDİ: Simülasyon Sonuç Ekranı Modalı === -->
+<div class="modal fade" id="sonucModal" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold">🏁 Simülasyon Sonucu</h5>
+      </div>
+      <div class="modal-body bg-light p-4">
+
+        <div class="text-center mb-4">
+          <span id="sonucDurumBadge" class="sonuc-durum-badge">-</span>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="sonuc-stat">
+              <div class="label">Süre</div>
+              <div class="value"><span id="sonuc_gun">0</span> gün</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="sonuc-stat">
+              <div class="label">Son C(t)</div>
+              <div class="value"><span id="sonuc_sonC">0</span></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="sonuc-stat">
+              <div class="label">Zirve C</div>
+              <div class="value"><span id="sonuc_maxC">0</span></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="sonuc-stat">
+              <div class="label">Toksik Sınır</div>
+              <div class="value">350</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold text-secondary mb-1">💊 Simülasyondaki İlaçlar</h6>
+          <p id="sonuc_ilaclar" class="mb-0 small text-muted">-</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold text-secondary mb-1">🩺 Hekim Müdahalesi</h6>
+          <p id="sonuc_mudahale" class="mb-0 small text-muted">-</p>
+        </div>
+
+        <div class="mb-1">
+          <h6 class="fw-bold text-secondary mb-1">📋 Özet</h6>
+          <p id="sonuc_ozet" class="mb-0 small">-</p>
+        </div>
+
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">Kapat</button>
+        <button type="button" class="btn btn-dark fw-bold" onclick="yeniSimulasyon()">🔄 Yeni Simülasyon</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === EKLENDİ: İlaç Seçim Modalı === -->
+<div class="modal fade" id="ilacSecModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title fw-bold">💊 İlaç Seç</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">Hastanın kullandığı ilaçlara tıklayın. Hiçbiri gerekli değilse boş bırakıp <b>Onayla</b>'ya basabilirsiniz.</p>
+        <div id="ilacGrid" class="ilac-grid"><!-- JS ile doldurulacak --></div>
+      </div>
+      <div class="modal-footer border-0">
+        <span class="me-auto text-muted small"><span id="seciliSayisi">0</span> ilaç seçildi</span>
+        <button type="button" class="btn btn-primary fw-bold" data-bs-dismiss="modal" onclick="ilaclariOnayla()">✔ Onayla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Footer -->
 <footer class="footer text-center shadow-lg">
     <div class="container">
@@ -337,6 +469,14 @@
     // === EKLENDİ: Seçilen ilaçları saklayıp AI mesajında "hangi ilaç sorumlu" bilgisini vermek için ===
     let secilenIlacListesi = []; // [{isim, I}, ...] - I'ye göre büyükten küçüğe sıralı
 
+    // === EKLENDİ: Buton tabanlı ilaç seçim durumu ===
+    let seciliIlacIdSeti = new Set();   // kullanıcı tıklayarak seçtiği ilaç id'leri
+    let onaylandiMi = false;             // "İlaçları Onayla" butonuna basıldı mı?
+
+    // === EKLENDİ: Sonuç ekranı için takip edilen değerler ===
+    let maxKonsantrasyon = 0;
+    let mudahaleKararMetni = "Müdahale gerekmedi — konsantrasyon güvenli sınırlar içinde kaldı.";
+
     // === DÜZELTME: Kayan nokta (floating point) hatasından etkilenmeyen tam sayı adım sayacı ===
     // mevcutGun += 0.05 işlemi binary temsil hatası biriktirdiği için "mevcutGun % 0.5" güvenilmezdi.
     // Bunun yerine her adımda 1 artan bir tam sayı sayaç kullanıyoruz.
@@ -346,6 +486,7 @@
 
     const logEkrani = document.getElementById("logEkrani");
     const mudahaleModal = new bootstrap.Modal(document.getElementById('mudahaleModal'));
+    const sonucModal = new bootstrap.Modal(document.getElementById('sonucModal')); // === EKLENDİ ===
 
     // Matematiksel Monitör DOM Elementleri
     const m_t = document.getElementById("math_t");
@@ -357,6 +498,79 @@
     const m_Af = document.getElementById("math_Af");
     const m_I = document.getElementById("math_I");
     const m_C = document.getElementById("math_C");
+
+    // === EKLENDİ: İlaç seçim butonlarını dinamik olarak oluştur ===
+    function ilacGridiniOlustur() {
+        const grid = document.getElementById("ilacGrid");
+        grid.innerHTML = "";
+        Object.keys(ILAC_KATALOGU).forEach(id => {
+            const ilac = ILAC_KATALOGU[id];
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "ilac-btn";
+            btn.dataset.id = id;
+            btn.innerHTML = `<span class="ilac-isim">${ilac.isim}</span><span class="ilac-i">I: ${ilac.I.toFixed(2)}</span><span class="ilac-check">✓</span>`;
+            btn.addEventListener("click", () => ilacSecimiDegistir(id, btn));
+            grid.appendChild(btn);
+        });
+    }
+
+    // === BASİTLEŞTİRİLDİ: tek tıkla seç/kaldır, kilit yok. Onaydan sonra da değiştirilebilir,
+    // sadece değiştirince "onaylanmadı" durumuna döner ve tekrar onaylamak gerekir. ===
+    function ilacSecimiDegistir(id, btn) {
+        if (seciliIlacIdSeti.has(id)) {
+            seciliIlacIdSeti.delete(id);
+            btn.classList.remove("secili");
+        } else {
+            seciliIlacIdSeti.add(id);
+            btn.classList.add("secili");
+        }
+        document.getElementById("seciliSayisi").innerText = seciliIlacIdSeti.size;
+
+        if (onaylandiMi) {
+            // seçim değiştiyse eski onay artık geçersiz — tekrar onay istenir
+            onaylandiMi = false;
+            document.getElementById("onayOzetKutusu").classList.add("d-none");
+            document.getElementById("btnBaslat").disabled = true;
+            ilacButonunuGuncelle(false);
+        }
+    }
+
+    // === EKLENDİ: Ana "İlaç Seç" butonunun görünümünü seçim durumuna göre güncelle ===
+    function ilacButonunuGuncelle(onaylandi) {
+        const btn = document.getElementById("btnIlacSecAc");
+        if (onaylandi) {
+            btn.classList.remove("btn-warning");
+            btn.classList.add("btn-outline-primary");
+            btn.innerHTML = seciliIlacIdSeti.size > 0
+                ? `💊 İlaç Seç <span class="float-end">✅ ${seciliIlacIdSeti.size} ilaç seçildi</span>`
+                : `💊 İlaç Seç <span class="float-end">✅ İlaç kullanılmıyor</span>`;
+        } else {
+            btn.classList.add("btn-warning");
+            btn.classList.remove("btn-outline-primary");
+            btn.innerHTML = `💊 İlaç Seç <span class="float-end">⚠️ Zorunlu adım — devam etmek için tıklayın</span>`;
+        }
+    }
+
+    // === BASİTLEŞTİRİLDİ: "İlaçları Onayla" — tek adımda özet gösterir + başlat butonunu açar ===
+    function ilaclariOnayla() {
+        const ozetKutusu = document.getElementById("onayOzetKutusu");
+        const btnBaslat = document.getElementById("btnBaslat");
+
+        onaylandiMi = true;
+
+        if (seciliIlacIdSeti.size === 0) {
+            ozetKutusu.innerHTML = "✅ Onaylandı: Hiç ilaç seçilmedi (yalnız fizyolojik eliminasyon).";
+        } else {
+            const secilenIsimler = Array.from(seciliIlacIdSeti)
+                .map(id => `${ILAC_KATALOGU[id].isim} (I: ${ILAC_KATALOGU[id].I.toFixed(2)})`)
+                .join(", ");
+            ozetKutusu.innerHTML = `✅ Onaylandı (${seciliIlacIdSeti.size} ilaç): ${secilenIsimler}`;
+        }
+        ozetKutusu.classList.remove("d-none");
+        btnBaslat.disabled = false;
+        ilacButonunuGuncelle(true); // === EKLENDİ ===
+    }
 
     function formatTime() {
         const now = new Date();
@@ -406,15 +620,23 @@
     }
 
     function simulasyonuBaslat() {
+        // === EKLENDİ: Simülasyon başlamadan önce ilaç seçiminin onaylanmış olması zorunlu ===
+        if (!onaylandiMi) {
+            alert("Lütfen simülasyonu başlatmadan önce 'İlaçları Onayla' butonuna basın.");
+            return;
+        }
+
         document.getElementById("btnBaslat").disabled = true;
         logEkrani.innerHTML = ""; clearInterval(simInterval);
 
         mevcutGun = 0; cAnlik = 0; gunlukDoz = 8200.0; mudahaleEdildi = false;
         adimSayaci = 0; // === DÜZELTME: sayaç her yeni simülasyonda sıfırlanmalı ===
         chartData = [];
+        maxKonsantrasyon = 0; // === EKLENDİ: sonuç ekranı için zirve değeri sıfırla ===
+        mudahaleKararMetni = "Müdahale gerekmedi — konsantrasyon güvenli sınırlar içinde kaldı."; // === EKLENDİ ===
 
         globalAf = parseFloat(document.getElementById("hastaTipi").value);
-        const secilenIlaclar = Array.from(document.getElementById("ilacSecim").selectedOptions).map(opt => opt.value);
+        const secilenIlaclar = Array.from(seciliIlacIdSeti); // === DÜZELTME: artık onaylanmış buton seçiminden okunuyor ===
 
         kalanKapasite = 1.0;
         secilenIlaclar.forEach(id => { kalanKapasite *= (1 - ILAC_KATALOGU[id].I); });
@@ -448,6 +670,7 @@
         adimSayaci++; // === DÜZELTME: her adımda 1 artan güvenilir sayaç ===
 
         chartData.push({ x: parseFloat(mevcutGun.toFixed(2)), y: parseFloat(cAnlik.toFixed(2)) });
+        if (cAnlik > maxKonsantrasyon) maxKonsantrasyon = cAnlik; // === EKLENDİ: zirve konsantrasyon takibi ===
 
         m_t.innerText = mevcutGun.toFixed(2);
         m_dCdt.innerText = (dC_dt_anlik > 0 ? "+" : "") + dC_dt_anlik.toFixed(1);
@@ -478,7 +701,59 @@
             clearInterval(simInterval); simChart.update();
             logYaz("✅ SİMÜLASYON TAMAMLANDI.", "#10b981");
             document.getElementById("btnBaslat").disabled = false;
+            sonucEkraniniGoster(); // === EKLENDİ ===
         }
+    }
+
+    // === EKLENDİ: Simülasyon bitince sonuç ekranını doldurup göster ===
+    function sonucEkraniniGoster() {
+        const badge = document.getElementById("sonucDurumBadge");
+        let durumMetni, durumRenk, ozetMetni;
+
+        if (maxKonsantrasyon >= toksikSinir) {
+            durumMetni = "🔴 KRİTİK — Toksik Sınır Aşıldı";
+            durumRenk = "#e74c3c";
+            ozetMetni = "Simülasyon boyunca konsantrasyon toksik sınırın üzerine çıktı. Hekim müdahalesi kritik önemdeydi.";
+        } else if (maxKonsantrasyon >= toksikSinir * 0.70) {
+            durumMetni = "🟠 RİSKLİ — Yakın Takip Gerekli";
+            durumRenk = "#f39c12";
+            ozetMetni = "Konsantrasyon riskli bölgeye girdi ancak toksik sınırın altında kaldı. Yakın izlem önerilir.";
+        } else {
+            durumMetni = "🟢 GÜVENLİ — Tedavi Penceresinde";
+            durumRenk = "#27ae60";
+            ozetMetni = "Konsantrasyon simülasyon boyunca güvenli aralıkta kaldı, ek müdahaleye gerek kalmadı.";
+        }
+
+        badge.innerText = durumMetni;
+        badge.style.background = durumRenk + "22";
+        badge.style.color = durumRenk;
+        badge.style.border = `2px solid ${durumRenk}`;
+
+        document.getElementById("sonuc_gun").innerText = mevcutGun.toFixed(1);
+        document.getElementById("sonuc_sonC").innerText = cAnlik.toFixed(2);
+        document.getElementById("sonuc_maxC").innerText = maxKonsantrasyon.toFixed(2);
+
+        document.getElementById("sonuc_ilaclar").innerText = secilenIlacListesi.length > 0
+            ? secilenIlacListesi.map(i => `${i.isim} (I: ${i.I.toFixed(2)})`).join(", ")
+            : "Seçili ilaç yok";
+
+        document.getElementById("sonuc_mudahale").innerText = mudahaleKararMetni;
+        document.getElementById("sonuc_ozet").innerText = ozetMetni;
+
+        sonucModal.show();
+    }
+
+    // === EKLENDİ: "Yeni Simülasyon" — sonuç ekranından sıfırdan başlatmak için ===
+    function yeniSimulasyon() {
+        sonucModal.hide();
+        seciliIlacIdSeti.clear();
+        onaylandiMi = false;
+        document.querySelectorAll("#ilacGrid .ilac-btn").forEach(b => b.classList.remove("secili"));
+        document.getElementById("seciliSayisi").innerText = "0";
+        document.getElementById("onayOzetKutusu").classList.add("d-none");
+        document.getElementById("btnBaslat").disabled = true;
+        ilacButonunuGuncelle(false); // === EKLENDİ ===
+        logEkrani.innerHTML = "<span style=\"color:#64748b;\">[SİSTEM]</span> AI Karar Destek Modülü ve Diferansiyel Motor aktif.<br>";
     }
 
     // === EKLENDİ: Seçilen ilaçlar arasından "asıl sorumlu" olanları belirleyen yardımcı fonksiyon ===
@@ -550,8 +825,9 @@
             borderColor: '#8e44ad', borderWidth: 2, borderDash: [3, 3]
         };
 
-        if (karar === 'K') gunlukDoz = 0.0;
-        else if (karar === 'D') gunlukDoz /= 2;
+        if (karar === 'K') { gunlukDoz = 0.0; mudahaleKararMetni = `Gün ${mevcutGun.toFixed(1)}'de ilaç TAMAMEN KESİLDİ (toksisite eşiği %85'e ulaştığında).`; }
+        else if (karar === 'D') { gunlukDoz /= 2; mudahaleKararMetni = `Gün ${mevcutGun.toFixed(1)}'de doz YARIYA DÜŞÜRÜLDÜ (toksisite eşiği %85'e ulaştığında).`; }
+        else { mudahaleKararMetni = `Gün ${mevcutGun.toFixed(1)}'de toksisite uyarısına rağmen HİÇBİR MÜDAHALE yapılmadı, izleme devam edildi.`; }
 
         logYaz(`[AI-KAYIT] Hekim müdahalesi sisteme işlendi. Diferansiyel motor güncellendi.`, "#a855f7");
 
@@ -559,6 +835,9 @@
 
         simInterval = setInterval(similasyonAdimi, 40);
     }
+
+    // === EKLENDİ: Sayfa yüklendiğinde ilaç butonlarını oluştur ===
+    document.addEventListener("DOMContentLoaded", ilacGridiniOlustur);
 </script>
 </body>
 </html>
