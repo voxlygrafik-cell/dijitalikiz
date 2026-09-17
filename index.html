@@ -183,27 +183,60 @@
         }
         .sonuc-stat .label { font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; font-weight: 700; }
         .sonuc-stat .value { font-size: 1.4rem; font-weight: 800; color: #2c3e50; }
-    </style>
+    
+/* Yenilenen arayüz */
+:root{--ink:#173c43;--muted:#71868b;--teal:#087f80;--line:#e2ebeb}
+body{background:#f3f7f7;color:var(--ink);font-size:14px;line-height:1.65}
+.container{max-width:1320px;padding-left:28px;padding-right:28px}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:19px 0}
+.topbar .container{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;letter-spacing:-.5px}
+.brand-mark{display:grid;place-items:center;background:var(--teal);color:white;width:37px;height:37px;border-radius:11px;font-size:25px;font-weight:400}
+.brand small{font-size:10px;color:var(--muted);display:block;letter-spacing:1.6px;font-weight:600}
+.topnav{display:flex;gap:24px;align-items:center}.topnav a{color:var(--muted);text-decoration:none;font-size:13px}.topnav a:first-child{color:var(--teal);font-weight:700}
+.session-tag{color:var(--teal);font-size:11px;background:#e8f5f1;padding:6px 11px;border-radius:6px}
+.hero-header{background:none;color:var(--ink);text-align:left!important;padding:40px 0 26px;margin:0;border:0;box-shadow:none}
+.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:var(--teal);margin-bottom:10px}
+.hero-header h1{font-size:clamp(25px,3vw,36px);letter-spacing:-1.2px;max-width:850px}
+.hero-header .lead{font-size:14px;color:var(--muted);margin-top:10px}
+.overview{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
+.metric{border:1px solid var(--line);background:#fff;border-radius:12px;padding:18px 22px;position:relative}.metric-label{font-size:11px;color:var(--muted);font-weight:600}.metric-value{font-size:28px;font-weight:600;letter-spacing:-1px;margin-top:4px}.metric-value small{font-size:12px;color:var(--muted);letter-spacing:0;font-weight:400}.metric-note{font-size:10px;color:var(--muted)}.metric-symbol{position:absolute;right:20px;top:20px;background:#ecf6f4;color:var(--teal);border-radius:8px;padding:4px 10px}
+.card{border:1px solid var(--line)!important;border-radius:14px;box-shadow:0 4px 16px #173c4303!important;overflow:hidden}
+.card-header,.card-header.bg-dark{background:#fff!important;color:var(--ink)!important;border-bottom:1px solid var(--line)!important;padding:18px 22px;font-size:13px;border-radius:0!important}
+.card-body{padding:22px}.form-label{font-size:10px!important;letter-spacing:1px;color:var(--muted)!important}.form-select{font-size:12px;padding:12px;border-color:var(--line);border-radius:8px;background-color:#fbfdfd}
+.btn{border-radius:8px;font-size:12px;transition:background .2s,transform .2s}.btn:focus-visible,.form-select:focus-visible,a:focus-visible{outline:3px solid #20aaa5;outline-offset:3px;box-shadow:none}.btn-dark,.btn-primary{background:var(--teal);border-color:var(--teal);box-shadow:none!important}.btn-dark:hover,.btn-primary:hover{background:#066667;border-color:#066667}.btn:disabled{opacity:.45}
+#btnIlacSecAc{background:#f1f8f7;border:1px solid #cee5e0;color:var(--teal);font-size:13px!important;padding:13px!important;white-space:normal}#btnIlacSecAc .float-end{display:block;float:none!important;font-size:10px;font-weight:400;margin-top:4px}
+#btnBaslat{font-size:11px;letter-spacing:.6px}.onay-ozet{font-size:11px;background:#eff8f5;border:1px solid #d3e9e0;color:#32645a}
+.math-panel{background:#15373e;color:#d5eeeb;padding:22px;font-size:11px;box-shadow:none}.math-formula{font-size:12px;color:#8bd5ca;border-bottom:1px solid #35545a;padding-bottom:16px;margin-bottom:14px}.math-var{gap:10px;margin-bottom:9px}.math-var span:first-child{color:#a5bfc2}.math-val{text-shadow:none;color:#eefaf8;font-weight:400}
+.col-lg-8>.card.h-100{height:auto!important;max-height:none!important}#chartContainer{height:360px;padding:14px 20px}.chart-caption{display:flex;gap:16px;flex-wrap:wrap;padding:0 24px 18px;font-size:10px;color:var(--muted)}.legend-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:#56ae96}
+.log-panel{height:179px;background:#fbfdfd;color:var(--ink);font-size:11px;padding:18px 22px;line-height:1.9}.log-panel span{color:#517875!important}.log-panel span[style*='64748b']{color:#92a4a8!important}
+.text-primary{color:var(--teal)!important}.footer{box-shadow:none!important;background:transparent;margin-top:30px;padding:28px 0}.footer .university-logo{max-height:48px;margin-bottom:12px}.footer h4{font-size:14px}.footer p{font-size:11px}.authors{background:none;-webkit-text-fill-color:var(--ink);font-size:12px}.footer .mt-4{margin-top:12px!important}.footer .small{font-size:9px;letter-spacing:1px}
+.modal-content{border-radius:16px;overflow:hidden}.modal-header{padding:20px 24px}.modal-header.bg-dark{background:var(--ink)!important}.modal-title{font-size:16px}.modal-body{background:white!important}.ilac-btn{border-width:1px;padding:13px;border-color:var(--line)}.ilac-btn.secili{background:var(--teal);border-color:var(--teal);box-shadow:none}.ilac-btn:hover{border-color:var(--teal)}.ilac-btn .ilac-isim{font-size:13px}.ilac-btn .ilac-i{font-size:10px}.ai-avatar{width:46px;height:46px;font-size:24px;border:1px solid var(--line);box-shadow:none}.ai-chat-bubble{border:1px solid var(--line);background:#f4f9f8;padding:15px;border-radius:12px}.ai-chat-bubble:before,.ai-chat-bubble:after{display:none}.ai-text{color:var(--ink);font-family:Inter,sans-serif;font-size:12px}.ai-badge{background:var(--teal)}
+#ekip{margin-top:30px!important}#ekip>.col-lg-8{width:100%}#ekip h5{font-size:14px}#ekip a{font-size:12px}#ekip .card-header{text-align:left!important}
+@media(min-width:992px){.col-lg-4{width:32%}.col-lg-8{width:68%}}
+@media(max-width:767px){.container{padding-left:18px;padding-right:18px}.topnav a{display:none}.session-tag{font-size:9px}.brand{font-size:16px}.hero-header{padding-top:28px}.overview{gap:8px}.metric{padding:12px}.metric-symbol{display:none}.metric-value{font-size:23px}.metric-label{font-size:9px}.metric-note{font-size:9px}.card-body{padding:18px}#chartContainer{height:290px;padding:8px}.modal-body .border-end{border:0!important;margin-bottom:24px}.ai-doctor-container{gap:0}.math-formula{font-size:11px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+</style>
 </head>
-<body>
+<body><nav class="topbar" aria-label="Ana menü"><div class="container"><div class="brand"><span class="brand-mark" aria-hidden="true">+</span><div>Dijital İkiz<small>GERİATRİK SİMÜLASYON</small></div></div><div class="topnav"><a href="#simulasyon">Simülasyon</a><a href="#ekip">Proje ekibi</a><span class="session-tag">Eğitim simülasyonu</span></div></div></nav>
 
 <div class="hero-header text-center">
     <div class="container">
-        <h1 class="fw-bold mb-2">Geriatride Yapay Zeka Destekli Dijital İkiz</h1>
+        <div class="eyebrow">DİJİTAL SAĞLIK LABORATUVARI</div><h1 class="fw-bold mb-2">Geriatride Yapay Zeka Destekli Dijital İkiz</h1>
         <p class="lead mb-0 opacity-75">Farmakokinetik İzlem, Matematiksel Modelleme ve AI Tabanlı Karar Destek Sistemi</p>
     </div>
 </div>
 
-<div class="container">
-    <div class="row g-4">
+<main class="container" id="simulasyon"><div class="overview"><div class="metric"><span class="metric-symbol">◷</span><div class="metric-label">SİMÜLASYON SÜRESİ</div><div class="metric-value"><span id="liveDay">0.00</span> <small>/ 14 gün</small></div><div class="metric-note" id="liveStatus">Başlatılmayı bekliyor</div></div><div class="metric"><span class="metric-symbol">∿</span><div class="metric-label">ANLIK KONSANTRASYON</div><div class="metric-value"><span id="liveC">0.00</span> <small>mg/L</small></div><div class="metric-note">Modelin hesapladığı değer</div></div><div class="metric"><span class="metric-symbol">↗</span><div class="metric-label">ETKİLEŞİM YÜKÜ</div><div class="metric-value"><span id="liveI">—</span></div><div class="metric-note">Seçilen ilaçlara göre</div></div></div><div class="row g-4">
 
         <!-- Sol Panel (Ayarlar ve Matematiksel Monitör) -->
         <div class="col-lg-4">
 
             <div class="card mb-4">
-                <div class="card-header"><span>⚙️ Hasta ve İlaç Parametreleri</span></div>
+                <div class="card-header"><span>Hasta ve ilaç parametreleri</span></div>
                 <div class="card-body">
-                    <label class="form-label fw-bold text-secondary text-uppercase" style="font-size:0.8rem;">Hasta Profili</label>
+                    <label for="hastaTipi" class="form-label fw-bold text-secondary text-uppercase" style="font-size:0.8rem;">Hasta Profili</label>
                     <select id="hastaTipi" class="form-select mb-4">
                         <option value="1.0">Genç / Sağlıklı Hasta (Af: %100)</option>
                         <option value="0.6" selected>Geriatrik / Yaşlı Hasta (Af: %60)</option>
@@ -212,7 +245,7 @@
                     <label class="form-label fw-bold text-secondary text-uppercase" style="font-size:0.8rem;">Polifarmasi (Çoklu İlaç)</label>
 
                     <button id="btnIlacSecAc" type="button" class="btn btn-warning w-100 fw-bold mb-2 text-start px-3 py-3" data-bs-toggle="modal" data-bs-target="#ilacSecModal">
-                        💊 İlaç Seç <span class="float-end">⚠️ Zorunlu adım — devam etmek için tıklayın</span>
+                        💊 İlaç Seç <span class="float-end">Başlamadan önce ilaç seçimini onaylayın</span>
                     </button>
 
                     <div id="onayOzetKutusu" class="onay-ozet mb-4 d-none"></div>
@@ -227,7 +260,7 @@
 
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white border-0" style="border-radius: 12px 12px 0 0;">
-                    🧮 Matematiksel Model Telemetri
+                    Matematiksel model
                 </div>
                 <div class="card-body p-0">
                     <div class="math-panel">
@@ -255,14 +288,14 @@
         <!-- Sağ Panel (Grafik ve Sistem Monitörü) -->
         <div class="col-lg-8">
             <div class="card mb-4 h-100" style="max-height: 500px;">
-                <div class="card-header">📈 İlaç Konsantrasyon Grafiği</div>
+                <div class="card-header">Konsantrasyon izlemi</div>
                 <div class="card-body p-0">
-                    <div id="chartContainer"><canvas id="simChart"></canvas></div>
+                    <div id="chartContainer"><canvas id="simChart" role="img" aria-label="Zamana göre ilaç konsantrasyonu grafiği"></canvas></div><div class="chart-caption"><span><i class="legend-dot"></i>Güvenli bölge</span><span><i class="legend-dot" style="background:#d3a355"></i>Riskli bölge</span><span><i class="legend-dot" style="background:#d77474"></i>Kritik bölge</span></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header bg-dark text-white border-0" style="border-radius: 12px 12px 0 0;">💻 Yapay Zeka Sistem Logları</div>
+                <div class="card-header bg-dark text-white border-0" style="border-radius: 12px 12px 0 0;">Simülasyon günlüğü</div>
                 <div class="card-body p-0">
                     <div id="logEkrani" class="log-panel">
                         <span style="color:#64748b;">[SİSTEM]</span> AI Karar Destek Modülü ve Diferansiyel Motor aktif.<br>
@@ -274,11 +307,11 @@
     </div>
 
     <!-- İLETİŞİM BÖLÜMÜ -->
-    <div class="row justify-content-center mt-5">
+    <div class="row justify-content-center mt-5" id="ekip">
         <div class="col-lg-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-dark text-white border-0 text-center" style="border-radius: 12px 12px 0 0;">
-                    📬 Proje Ekibi & İletişim
+                    Proje ekibi & iletişim
                 </div>
                 <div class="card-body text-center p-4">
                     <div class="row g-3">
@@ -305,7 +338,7 @@
     </div>
     <!-- İletişim Bölümü Sonu -->
 
-</div>
+</main>
 
 <!-- Yapay Zeka Hekim Müdahale Modalı -->
 <div class="modal fade" id="mudahaleModal" data-bs-backdrop="static" tabindex="-1">
@@ -441,7 +474,7 @@
 <!-- Footer -->
 <footer class="footer text-center shadow-lg">
     <div class="container">
-        <img src="https://kapadokya.edu.tr/assets/images/logo.png" alt="Kapadokya Üniversitesi Logosu" class="university-logo" onerror="this.src='https://kapadokya.edu.tr/MediaUploader/Documents/kun-turkce-1_1.jpg'">
+        <img src="https://kapadokya.edu.tr/assets/images/logo.png" alt="Kapadokya Üniversitesi Logosu" class="university-logo" onerror="this.style.display='none'">
         <h4 class="fw-bold mb-1" style="color: #2c3e50;">Kapadokya Üniversitesi</h4>
         <p class="text-muted mb-3">Geriatride Dijital İkiz Teknolojileri</p>
         <div class="mt-4">
@@ -508,7 +541,7 @@
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = "ilac-btn";
-            btn.dataset.id = id;
+            btn.dataset.id = id; btn.setAttribute('aria-pressed', 'false');
             btn.innerHTML = `<span class="ilac-isim">${ilac.isim}</span><span class="ilac-i">I: ${ilac.I.toFixed(2)}</span><span class="ilac-check">✓</span>`;
             btn.addEventListener("click", () => ilacSecimiDegistir(id, btn));
             grid.appendChild(btn);
@@ -525,6 +558,7 @@
             seciliIlacIdSeti.add(id);
             btn.classList.add("secili");
         }
+        btn.setAttribute('aria-pressed', seciliIlacIdSeti.has(id));
         document.getElementById("seciliSayisi").innerText = seciliIlacIdSeti.size;
 
         if (onaylandiMi) {
@@ -548,7 +582,7 @@
         } else {
             btn.classList.add("btn-warning");
             btn.classList.remove("btn-outline-primary");
-            btn.innerHTML = `💊 İlaç Seç <span class="float-end">⚠️ Zorunlu adım — devam etmek için tıklayın</span>`;
+            btn.innerHTML = `💊 İlaç Seç <span class="float-end">Başlamadan önce ilaç seçimini onaylayın</span>`;
         }
     }
 
@@ -591,8 +625,8 @@
                 datasets: [{
                     label: 'İlaç Konsantrasyonu (mg/L)',
                     data: chartData,
-                    borderColor: '#00f2fe',
-                    backgroundColor: 'rgba(0, 242, 254, 0.1)',
+                    borderColor: '#087f80',
+                    backgroundColor: 'rgba(8, 127, 128, 0.08)',
                     borderWidth: 3,
                     pointRadius: 0,
                     fill: true,
@@ -653,7 +687,7 @@
         m_Vd.innerText = Vd.toFixed(0);
         m_CL.innerText = CL_gunluk.toFixed(0);
         m_Af.innerText = globalAf.toFixed(2);
-        m_I.innerText = toplamI.toFixed(2);
+        m_I.innerText = toplamI.toFixed(2); document.getElementById('liveI').textContent = '%' + (toplamI * 100).toFixed(0); setRunning(true, 'Simülasyon çalışıyor');
 
         logYaz(`[AI] Hasta verileri işleniyor... Af: ${globalAf}, Toplam I: ${toplamI.toFixed(2)}`, "#0ea5e9");
         grafikiHazirla();
@@ -672,6 +706,7 @@
         chartData.push({ x: parseFloat(mevcutGun.toFixed(2)), y: parseFloat(cAnlik.toFixed(2)) });
         if (cAnlik > maxKonsantrasyon) maxKonsantrasyon = cAnlik; // === EKLENDİ: zirve konsantrasyon takibi ===
 
+        document.getElementById('liveDay').textContent = mevcutGun.toFixed(2); document.getElementById('liveC').textContent = cAnlik.toFixed(2);
         m_t.innerText = mevcutGun.toFixed(2);
         m_dCdt.innerText = (dC_dt_anlik > 0 ? "+" : "") + dC_dt_anlik.toFixed(1);
 
@@ -694,14 +729,14 @@
             clearInterval(simInterval);
             simChart.update();
             yapayZekaAnaliziUret();
-            mudahaleModal.show();
+            setRunning(true, 'Karar bekleniyor · duraklatıldı'); mudahaleModal.show();
         }
 
         if (mevcutGun >= 14) {
             clearInterval(simInterval); simChart.update();
             logYaz("✅ SİMÜLASYON TAMAMLANDI.", "#10b981");
             document.getElementById("btnBaslat").disabled = false;
-            sonucEkraniniGoster(); // === EKLENDİ ===
+            setRunning(false, 'Simülasyon tamamlandı'); sonucEkraniniGoster(); // === EKLENDİ ===
         }
     }
 
@@ -745,7 +780,7 @@
 
     // === EKLENDİ: "Yeni Simülasyon" — sonuç ekranından sıfırdan başlatmak için ===
     function yeniSimulasyon() {
-        sonucModal.hide();
+        sonucModal.hide(); chartData = []; grafikiHazirla(); document.querySelectorAll('.math-val span[id]').forEach(e => e.textContent='0'); document.getElementById('liveDay').textContent='0.00'; document.getElementById('liveC').textContent='0.00'; document.getElementById('liveI').textContent='—'; setRunning(false, 'Başlatılmayı bekliyor'); document.querySelectorAll('#ilacGrid .ilac-btn').forEach(b => b.setAttribute('aria-pressed','false'));
         seciliIlacIdSeti.clear();
         onaylandiMi = false;
         document.querySelectorAll("#ilacGrid .ilac-btn").forEach(b => b.classList.remove("secili"));
@@ -818,7 +853,7 @@
     }
 
     function hekimKarari(karar) {
-        mudahaleModal.hide(); mudahaleEdildi = true;
+        mudahaleModal.hide(); mudahaleEdildi = true; setRunning(true, 'Simülasyon çalışıyor');
 
         simChart.options.plugins.annotation.annotations.mudahale = {
             type: 'line', xMin: mevcutGun, xMax: mevcutGun,
@@ -837,7 +872,8 @@
     }
 
     // === EKLENDİ: Sayfa yüklendiğinde ilaç butonlarını oluştur ===
-    document.addEventListener("DOMContentLoaded", ilacGridiniOlustur);
+    function setRunning(running, status) { document.getElementById('hastaTipi').disabled=running; document.getElementById('btnIlacSecAc').disabled=running; document.getElementById('liveStatus').textContent=status; }
+ document.addEventListener('DOMContentLoaded', () => { ilacGridiniOlustur(); Chart.defaults.font.family='Inter, sans-serif'; Chart.defaults.color='#71868b'; grafikiHazirla(); });
 </script>
 </body>
 </html>
